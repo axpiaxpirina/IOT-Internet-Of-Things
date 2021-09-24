@@ -1,0 +1,100 @@
+/*
+ NodeMCU Access Point - Gracias a www.nodemakers.es
+
+ El NodeMCU se configura como access point y desde una página web podremos controlar el LED conectado al pint PinLED (D5)
+
+ 1) Definir los valores de ssid[] y password[]
+ 2) Subir el sketch al NodeMCU
+ 3) Reiniciar el NodeMCU
+ 4) Desde un teléfono o PC, acceder a la red WiFI del NodeMCU
+ 5) Navegar hasta la dirección http://192.168.4.1
+ */
+ 
+#include <ESP8266WiFi.h>                  // Añadimos la librería ESP8266WiFi
+ 
+const char ssid[] = "Equipo Aitor";           // Nombre de la red WiFi que creará el NodeMCU (Equipo 1/2/3/4)
+const char password[] = "12345678";       // Contraseña de la red WiFi que creará el NodeMCU
+WiFiServer server(80);                    // Puerto (80 por defecto)
+ 
+int PinLED = D5;                          // Pin de control (D5)
+int estado = LOW;                         // Variable en la que almacenaremos el estado del pin
+
+
+// setup() del sketch
+void setup() {
+  Serial.begin(115200);
+ 
+  pinMode(PinLED, OUTPUT);                // Define el pin PinLED como salida
+  digitalWrite(PinLED, LOW);              // Apaga el pin PinLED
+ 
+  server.begin();                         // Arranca el servidor web
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(ssid, password);            // Configura el microcontrolador como access point con contraseña
+  //WiFi.softAP(ssid);                    // Configura el microcontrolador como access point sin contraseña
+ 
+  Serial.println();
+  Serial.print("Direccion IP del access point: ");     // Escribe la direccion ip del access point
+  Serial.println(WiFi.softAPIP()); 
+  Serial.print("Direccion MAC del access point: ");     // Escribe la direccion mac del access point
+  Serial.println(WiFi.softAPmacAddress()); 
+}
+
+
+// Loop del sketch
+void loop() {
+  // Comprueba si hay algún cliente conectado
+  WiFiClient client = server.available();  
+  if (!client) {
+    return;
+  }
+ 
+  // Espera hasta que el cliente haga una petición
+  Serial.println("Nuevo cliente");
+  while(!client.available()){
+    delay(1);
+  }
+
+  // Escribe el número de clientes conectado
+  Serial.printf("Numero de clientes conectados al access point: %dn", WiFi.softAPgetStationNum()); 
+ 
+  // Leer la peticion del cliente
+  String peticion = client.readStringUntil('r');
+  Serial.println(peticion);
+  client.flush();
+ 
+  // Comprueba la peticion del cliente
+  if (peticion.indexOf('/LED=ON') != -1) {
+    estado = HIGH;
+  } 
+  if (peticion.indexOf('/LED=OFF') != -1){
+    estado = LOW;
+  }
+
+  // Dependiende de la peticion, encendemos o apagamos el pin PinLED
+  digitalWrite(PinLED, estado);
+ 
+  // Envía la página HTML de respuesta al cliente
+  client.println("HTTP/1.1 200 OK");
+  client.println("");                                     // Conviene no olvidar introducir un salto de línea
+  client.println("<!DOCTYPE HTML>");
+  client.println("<meta charset='UTF-8'>");
+  client.println("<html>");
+ 
+  // Escribe el estado del LED   
+  client.print("<h1> Estado del led ahora: ");                 
+  if(estado == HIGH) {
+    client.print("ENCENDIDO</h1>");  
+  } else {
+    client.print("APAGADO</h1>");
+  }
+
+ 
+  // Creamos dos botones para controlar el estado del led
+  client.println("<button type='button' onClick=location.href='/LED=ON' style='margin:auto; background-color:green; color:#A9F5A9; padding:5px; border:8px solid black; width:1000;'><h2> ENCENDER</h2> </button>");
+  client.println("<button type='button' onClick=location.href='/LED=OFF' style='margin:auto; background-color:red; color:#F6D8CE; padding:5px; border:8px solid black; width:1000;'><h2> APAGAR</h2> </button><br><br>");
+
+  client.println("</html>"); 
+  delay(1);
+  
+  Serial.println("Fin de la peticion");          // Se queda a la espera de una nueva petición
+}
