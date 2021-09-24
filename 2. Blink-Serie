@@ -1,0 +1,20 @@
+/* 
+ * Nuestro primer sketch (Salida digital) - Serial
+ * IoT Internet OF Things
+ * 2021
+*/
+
+void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  Serial.println("LED encendido");
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(5000);
+
+  Serial.println("LED apagado");
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(5000);
+}
