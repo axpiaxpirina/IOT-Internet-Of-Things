@@ -1,0 +1,24 @@
+/* 
+ * Led regulado b)
+ * IoT Internet Of Things
+ * 2021
+*/
+
+void setup() {
+  pinMode(D5, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  Serial.println("LED encendido");
+  analogWrite(D5, 1023);
+  delay(5000);
+
+  Serial.println("LED un tercio");
+  analogWrite(D5, 342);
+  delay(5000);
+
+  Serial.println("LED apagado");
+  analogWrite(D5, 0);
+  delay(5000);
+}
