@@ -14,10 +14,10 @@ void loop() {
   Serial.println("LEDs encendido");
   digitalWrite(LED_BUILTIN, HIGH);
   digitalWrite(D5, HIGH);
-  delay(5000);
+  delay(1000);
 
   Serial.println("LEDs apagado");
   digitalWrite(LED_BUILTIN, LOW);
   digitalWrite(D5, LOW);
-  delay(5000);
+  delay(1000);
 }
