@@ -12,9 +12,9 @@ void setup() {
 void loop() {
   Serial.println("LED encendido");
   digitalWrite(LED_BUILTIN, HIGH);
-  delay(5000);
+  delay(1000);
 
   Serial.println("LED apagado");
   digitalWrite(LED_BUILTIN, LOW);
-  delay(5000);
+  delay(1000);
 }
